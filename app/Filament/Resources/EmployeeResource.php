@@ -4,20 +4,24 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use App\Models\States;
+use App\Models\Country;
 use App\Models\Employee;
 use Filament\Resources\Form;
 use Filament\Resources\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\EmployeeResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\EmployeeResource\RelationManagers;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
+use App\Models\cities;
+use NunoMaduro\Collision\Adapters\Phpunit\State;
 
 class EmployeeResource extends Resource
 {
@@ -30,9 +34,37 @@ class EmployeeResource extends Resource
         return $form
             ->schema([
                 Card::make()->schema([
-                    Select::make('country_id')->relationship('country', 'name')->required(),
-                    Select::make('states_id')->relationship('states', 'name')->required(),
-                    Select::make('city_id')->relationship('city', 'name')->required(),
+
+                    Select::make('country_id')
+                        ->label('Country')
+                        ->options(Country::all()
+                            ->pluck('name', 'id')
+                            ->toArray())
+                        ->reactive()
+                        ->afterStateUpdated(fn (callable $set) => $set('state_id', null)),
+
+                    Select::make('states_id')
+                        ->label('State')
+                        ->options(function (callable $get) {
+                            $country = Country::find($get('country_id'));
+                            if (!$country) {
+                                return States::all()->pluck('name', 'id');
+                            }
+                            return $country->states->pluck('name', 'id');
+                        })
+                        ->reactive()
+                        ->afterStateUpdated(fn (callable $set) => $set('city_id', null)),
+
+                    Select::make('city_id')
+                        ->label('City')
+                        ->options(function (callable $get) {
+                            $states = States::find($get('states_id'));
+                            if (!$states) {
+                                return cities::all()->pluck('name', 'id');
+                            }
+                            return $states->cities->pluck('name', 'id');
+                        })
+                        ->reactive(),
                     Select::make('department_id')->relationship('department', 'name')->required(),
                     TextInput::make('first_name')->required(),
                     TextInput::make('last_name')->required(),
