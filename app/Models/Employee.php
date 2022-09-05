@@ -9,16 +9,18 @@ class Employee extends Model
 {
     use HasFactory;
 
-    protected $fillable=['first_name',
-    'last_name',
-    'address',
-    'city_id',
-    'state_id',
-    'department_id',
-    'country_id',
-    'zip_code',
-    'birth_date',
-    'date_hired'];
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'address',
+        'city_id',
+        'states_id',
+        'department_id',
+        'country_id',
+        'zip_code',
+        'birth_date',
+        'date_hired'
+    ];
 
 
     public function country()
@@ -31,12 +33,13 @@ class Employee extends Model
         return $this->belongsTo(Department::class);
     }
 
-    public function state(){
+    public function states()
+    {
         return $this->belongsTo(States::class);
     }
 
-    public function city(){
+    public function city()
+    {
         return $this->belongsTo(cities::class);
     }
-    
 }
