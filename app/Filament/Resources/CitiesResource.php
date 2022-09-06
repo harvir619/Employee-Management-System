@@ -21,15 +21,21 @@ class CitiesResource extends Resource
 {
     protected static ?string $model = Cities::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
+    protected static ?string $navigationGroup = 'System Management';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Card::make()->schema([
-                    Select::make('states_id')->relationship('states', 'name'),
-                    TextInput::make('name'),
+                    Select::make('states_id')
+                        ->relationship('states', 'name')
+                        ->required(),
+                    TextInput::make('name')
+                        ->required()
+                        ->maxLength(255),
                 ])
             ]);
     }

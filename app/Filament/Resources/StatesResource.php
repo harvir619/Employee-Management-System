@@ -22,6 +22,7 @@ class StatesResource extends Resource
     protected static ?string $model = States::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationGroup = 'System Management';
 
     public static function form(Form $form): Form
     {
@@ -29,7 +30,7 @@ class StatesResource extends Resource
             ->schema([
                 Card::make()->schema([
                     Select::make('country_id')->relationship('country', 'name')->required(),
-                    TextInput::make('name')->required(),
+                    TextInput::make('name')->required()->maxLength(255),
                 ])
             ]);
     }
