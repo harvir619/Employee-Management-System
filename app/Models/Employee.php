@@ -13,7 +13,7 @@ class Employee extends Model
         'first_name',
         'last_name',
         'address',
-        'city_id',
+        'cities_id',
         'states_id',
         'department_id',
         'country_id',
@@ -38,7 +38,7 @@ class Employee extends Model
         return $this->belongsTo(States::class);
     }
 
-    public function city()
+    public function cities()
     {
         return $this->belongsTo(cities::class);
     }

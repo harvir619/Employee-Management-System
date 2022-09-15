@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\EmployeeResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\EmployeeResource\RelationManagers;
+use App\Filament\Resources\EmployeeResource\Widgets\EmployeeStatsOverview;
 use App\Models\cities;
 use NunoMaduro\Collision\Adapters\Phpunit\State;
 
@@ -55,10 +56,10 @@ class EmployeeResource extends Resource
                             return $country->states->pluck('name', 'id');
                         })
                         ->reactive()
-                        ->afterStateUpdated(fn (callable $set) => $set('city_id', null))
+                        ->afterStateUpdated(fn (callable $set) => $set('cities_id', null))
                         ->required(),
 
-                    Select::make('city_id')
+                    Select::make('cities_id')
                         ->label('City')
                         ->options(function (callable $get) {
                             $states = States::find($get('states_id'));
@@ -89,14 +90,15 @@ class EmployeeResource extends Resource
                 TextColumn::make('first_name')->sortable()->searchable(),
                 TextColumn::make('last_name')->sortable()->searchable(),
                 TextColumn::make('department.name')->sortable()->searchable(),
-                TextColumn::make('city.name')->sortable()->searchable(),
+
+                TextColumn::make('cities.name')->sortable()->searchable(),
                 TextColumn::make('date_hired')->date(),
                 TextColumn::make('created_at')->dateTime(),
 
             ])
             ->filters([
                 SelectFilter::make('department')->relationship('department', 'name'),
-                SelectFilter::make('cities')->relationship('city', 'name')
+                SelectFilter::make('cities')->relationship('cities', 'name')
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -112,7 +114,12 @@ class EmployeeResource extends Resource
             //
         ];
     }
-
+    public static function getWidgets(): array
+    {
+        return [
+            EmployeeStatsOverview::class,
+        ];
+    }
     public static function getPages(): array
     {
         return [
