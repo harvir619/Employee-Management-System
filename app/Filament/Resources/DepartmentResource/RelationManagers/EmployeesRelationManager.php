@@ -3,12 +3,22 @@
 namespace App\Filament\Resources\DepartmentResource\RelationManagers;
 
 use Filament\Forms;
-use Filament\Resources\Form;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Resources\Table;
 use Filament\Tables;
+use App\Models\States;
+use App\Models\Country;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\DeleteBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class EmployeesRelationManager extends RelationManager
 {
@@ -20,9 +30,45 @@ class EmployeesRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('first_name')
-                    ->required()
-                    ->maxLength(255),
+                Select::make('country_id')
+                    ->label('Country')
+                    ->options(Country::all()
+                        ->pluck('name', 'id')
+                        ->toArray())
+                    ->reactive()
+                    ->afterStateUpdated(fn (callable $set) => $set('state_id', null))
+                    ->required(),
+
+                Select::make('states_id')
+                    ->label('State')
+                    ->options(function (callable $get) {
+                        $country = Country::find($get('country_id'));
+                        if (!$country) {
+                            return States::all()->pluck('name', 'id');
+                        }
+                        return $country->states->pluck('name', 'id');
+                    })
+                    ->reactive()
+                    ->afterStateUpdated(fn (callable $set) => $set('cities_id', null))
+                    ->required(),
+
+                Select::make('cities_id')
+                    ->label('City')
+                    ->options(function (callable $get) {
+                        $states = States::find($get('states_id'));
+                        if (!$states) {
+                            return cities::all()->pluck('name', 'id');
+                        }
+                        return $states->cities->pluck('name', 'id');
+                    })
+                    ->reactive()
+                    ->required(),
+                TextInput::make('first_name')->required()->maxLength(255),
+                TextInput::make('last_name')->required()->maxLength(255),
+                TextInput::make('address')->required()->maxLength(255),
+                TextInput::make('zip_code')->required()->maxLength(255),
+                DatePicker::make('birth_date')->required(),
+                DatePicker::make('date_hired')->required(),
             ]);
     }
 
@@ -30,7 +76,13 @@ class EmployeesRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('first_name'),
+                TextColumn::make('id')->sortable(),
+                TextColumn::make('first_name')->sortable()->searchable(),
+                TextColumn::make('last_name')->sortable()->searchable(),
+
+                TextColumn::make('cities.name')->sortable()->searchable(),
+                TextColumn::make('date_hired')->date(),
+                TextColumn::make('created_at')->dateTime(),
             ])
             ->filters([
                 //
@@ -45,5 +97,5 @@ class EmployeesRelationManager extends RelationManager
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
-    }    
+    }
 }
