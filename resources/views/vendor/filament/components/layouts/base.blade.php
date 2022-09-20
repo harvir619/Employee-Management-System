@@ -7,6 +7,7 @@
     class="antialiased bg-gray-100 filament js-focus-visible">
 
 <head>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     {{ \Filament\Facades\Filament::renderHook('head.start') }}
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta charset="utf-8">
@@ -83,7 +84,7 @@
             }
         </script>
     @endif
-
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     {{ \Filament\Facades\Filament::renderHook('head.end') }}
 </head>
 
@@ -111,8 +112,7 @@
         @else
             <script defer src="{{ route('filament.asset', [
                 'file' => "{$name}.js",
-            ]) }}">
-            </script>
+            ]) }}"></script>
         @endif
     @endforeach
 
@@ -133,8 +133,7 @@
         @else
             <script defer src="{{ route('filament.asset', [
                 'file' => "{$name}.js",
-            ]) }}">
-            </script>
+            ]) }}"></script>
         @endif
     @endforeach
 
