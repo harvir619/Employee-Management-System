@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\DepartmentResource\RelationManagers;
 
+use App\Models\cities;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\States;
